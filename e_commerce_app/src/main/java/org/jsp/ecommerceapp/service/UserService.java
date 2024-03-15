@@ -4,21 +4,33 @@ import java.util.Optional;
 
 import org.jsp.ecommerceapp.dao.UserDao;
 import org.jsp.ecommerceapp.dto.ResponseStructure;
+import org.jsp.ecommerceapp.exceptions.IdNotFound;
+import org.jsp.ecommerceapp.exceptions.InvalidCredentials;
 import org.jsp.ecommerceapp.model.User;
+import org.jsp.ecommerceapp.util.AccountStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import jakarta.servlet.http.HttpServletRequest;
+import net.bytebuddy.utility.RandomString;
 
 @Service
 public class UserService {
 	@Autowired
 	private UserDao userDao;
 
-	public ResponseEntity<ResponseStructure<User>> save(User user) {
+	@Autowired
+	private ECommerceApplicationEmailService emailService;
+
+	public ResponseEntity<ResponseStructure<User>> save(HttpServletRequest request, User user) {
 		ResponseStructure<User> structure = new ResponseStructure<>();
+		user.setStatus(AccountStatus.IN_ACTIVE.toString());
+		user.setToken(RandomString.make(40));
 		structure.setBody(userDao.saveUser(user));
-		structure.setMessage("User has been saved");
+		String message = emailService.welcomeEmail(request, user);
+		structure.setMessage("User has been saved, " + message);
 		structure.setStatusCode(HttpStatus.CREATED.value());
 		return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.CREATED);
 	}
@@ -37,7 +49,9 @@ public class UserService {
 			structure.setStatusCode(HttpStatus.CREATED.value());
 			return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.CREATED);
 		}
-		return new ResponseEntity<ResponseStructure<User>>(HttpStatus.BAD_REQUEST);
+		structure.setMessage("User has been saved");
+		structure.setStatusCode(HttpStatus.CREATED.value());
+		return new ResponseEntity<ResponseStructure<User>>(HttpStatus.CREATED);
 	}
 
 	public ResponseEntity<ResponseStructure<User>> findById(int id) {
@@ -49,24 +63,19 @@ public class UserService {
 			structure.setStatusCode(HttpStatus.OK.value());
 			return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.OK);
 		}
-		structure.setBody(null);
-		structure.setMessage("User not found!!");
-		structure.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
-		return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.INTERNAL_SERVER_ERROR);
+		throw new IdNotFound("Invlid Id");
 	}
 
 	public ResponseEntity<ResponseStructure<User>> deleteById(int id) {
 		ResponseStructure<User> structure = new ResponseStructure<>();
-		try {
-			userDao.deleteById(id);
+
+		if (userDao.deleteById(id)) {
 			structure.setMessage("User has been deleted!!");
 			structure.setStatusCode(HttpStatus.OK.value());
 			return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.OK);
-		} catch (Exception e) {
-			structure.setMessage("Invalid User Id");
-			structure.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
-			return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+		throw new IdNotFound("Invalid Id");
+
 	}
 
 	public ResponseEntity<ResponseStructure<User>> deleteAll() {
@@ -85,35 +94,43 @@ public class UserService {
 	}
 
 	public ResponseEntity<ResponseStructure<User>> verifyUser(String email, String password) {
-		ResponseStructure<User> structure = new ResponseStructure<>();
 		User u = userDao.verify(email, password);
 		if (u != null) {
+			ResponseStructure<User> structure = new ResponseStructure<>();
 			structure.setBody(u);
 			structure.setMessage("User has been verified");
 			structure.setStatusCode(HttpStatus.OK.value());
 			return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.OK);
 		}
-		structure.setBody(null);
-		structure.setMessage("Invalid email or password");
-		structure.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
-		return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.INTERNAL_SERVER_ERROR);
-
+		throw new InvalidCredentials("Invalid email or password");
 	}
 
 	public ResponseEntity<ResponseStructure<User>> verifyUser(long phone, String password) {
-		ResponseStructure<User> structure = new ResponseStructure<>();
 		User u = userDao.verify(phone, password);
 		if (u != null) {
+			ResponseStructure<User> structure = new ResponseStructure<>();
 			structure.setBody(u);
 			structure.setMessage("User has been verified");
 			structure.setStatusCode(HttpStatus.OK.value());
 			return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.OK);
 		}
-		structure.setBody(null);
-		structure.setMessage("Invalid phone number or password");
-		structure.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
-		return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.INTERNAL_SERVER_ERROR);
+		throw new InvalidCredentials("Invalid Phone number or password");
+	}
 
+	public ResponseEntity<ResponseStructure<String>> activateUser(String token) {
+		Optional<User> u = userDao.findByToken(token);
+		if (u.isPresent()) {
+			User user = u.get();
+			user.setStatus(AccountStatus.ACTIVE.toString());
+			user.setToken(null);
+			userDao.saveUser(user);
+			ResponseStructure<String> structure = new ResponseStructure<>();
+			structure.setBody("User Found");
+			structure.setMessage("Account Verified and Activated");
+			structure.setStatusCode(HttpStatus.ACCEPTED.value());
+			return new ResponseEntity<ResponseStructure<String>>(structure, HttpStatus.ACCEPTED);
+		}
+		throw new IdNotFound("Invalid Token");
 	}
 
 }
