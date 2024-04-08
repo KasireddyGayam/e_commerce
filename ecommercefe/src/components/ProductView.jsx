@@ -33,6 +33,7 @@ const ProductView = () => {
 
         })
         .catch((err)=>{
+        console.log(err);
             console.log(err.data);
         })
     }
