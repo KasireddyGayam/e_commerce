@@ -36,8 +36,14 @@ public class UserDao {
 		repository.deleteAll();
 	}
 
-	public void deleteById(int id) {
-			repository.deleteById(id);
+	public boolean deleteById(int id) {
+		repository.deleteById(id);
+		return true;
+	}
+	
+	public Optional<User> findByToken(String token)
+	{
+		return repository.findByToken(token);
 	}
 
 }

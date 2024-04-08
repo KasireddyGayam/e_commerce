@@ -5,21 +5,32 @@ import java.util.Optional;
 
 import org.jsp.ecommerceapp.dao.MerchantDao;
 import org.jsp.ecommerceapp.dto.ResponseStructure;
+import org.jsp.ecommerceapp.exceptions.IdNotFound;
+import org.jsp.ecommerceapp.exceptions.InvalidCredentials;
 import org.jsp.ecommerceapp.model.Merchant;
+import org.jsp.ecommerceapp.util.AccountStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import jakarta.servlet.http.HttpServletRequest;
+import net.bytebuddy.utility.RandomString;
+
 @Service
 public class MerchantService {
 	@Autowired
 	private MerchantDao merchantDao;
+	@Autowired
+	private ECommerceApplicationEmailService emailService;
 
-	public ResponseEntity<ResponseStructure<Merchant>> save(Merchant merchant) {
+	public ResponseEntity<ResponseStructure<Merchant>> save(HttpServletRequest request, Merchant merchant) {
 		ResponseStructure<Merchant> structure = new ResponseStructure<>();
+		merchant.setStatus(AccountStatus.IN_ACTIVE.toString());
+		merchant.setToken(RandomString.make(20));
 		structure.setBody(merchantDao.savMerchant(merchant));
-		structure.setMessage("Merchnat has been saved");
+		String message = emailService.welcomeEmail(request, merchant);
+		structure.setMessage("Merchant has been saved, "+message);
 		structure.setStatusCode(HttpStatus.CREATED.value());
 		return new ResponseEntity<ResponseStructure<Merchant>>(structure, HttpStatus.CREATED);
 	}
@@ -33,12 +44,7 @@ public class MerchantService {
 			structure.setStatusCode(HttpStatus.OK.value());
 			return new ResponseEntity<ResponseStructure<Merchant>>(structure, HttpStatus.OK);
 		}
-		structure.setBody(null);
-		structure.setMessage("Invalid id");
-		structure.setStatusCode(HttpStatus.BAD_REQUEST.value());
-
-		return new ResponseEntity<ResponseStructure<Merchant>>(structure, HttpStatus.BAD_REQUEST);
-
+		throw new IdNotFound("Invalid id");
 	}
 
 	public ResponseEntity<ResponseStructure<Merchant>> update(Merchant merchant) {
@@ -56,21 +62,20 @@ public class MerchantService {
 			structure.setStatusCode(HttpStatus.CREATED.value());
 			return new ResponseEntity<ResponseStructure<Merchant>>(structure, HttpStatus.CREATED);
 		}
-		return new ResponseEntity<ResponseStructure<Merchant>>(HttpStatus.NOT_FOUND);
+		return new ResponseEntity<ResponseStructure<Merchant>>(HttpStatus.BAD_REQUEST);
 	}
 
-	public ResponseEntity<ResponseStructure<Merchant>> deleteById(int id) {
-		ResponseStructure<Merchant> structure = new ResponseStructure<>();
-		try {
-			merchantDao.deleteById(id);
+	public ResponseEntity<ResponseStructure<String>> deleteById(int id) {
+
+		boolean b = merchantDao.deleteById(id);
+		if (b) {
+			ResponseStructure<String> structure = new ResponseStructure<>();
 			structure.setMessage("Merchant deleted");
+			structure.setBody("Merchant deleted");
 			structure.setStatusCode(HttpStatus.OK.value());
-			return new ResponseEntity<ResponseStructure<Merchant>>(structure, HttpStatus.NO_CONTENT);
-		} catch (Exception e) {
-			structure.setBody(null);
-			structure.setMessage("Merchant not found");
-			return new ResponseEntity<ResponseStructure<Merchant>>(structure, HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<ResponseStructure<String>>(structure, HttpStatus.NO_CONTENT);
 		}
+		throw new IdNotFound("Invalid id");
 	}
 
 	public ResponseEntity<ResponseStructure<Merchant>> deleteAll() {
@@ -88,42 +93,52 @@ public class MerchantService {
 	public ResponseEntity<ResponseStructure<Merchant>> verify(String email, String password) {
 
 		ResponseStructure<Merchant> structure = new ResponseStructure<>();
-		Merchant m = merchantDao.verifyMerchant(email, password);
-		if (m != null) {
-			structure.setBody(m);
+		Optional<Merchant> m = merchantDao.verifyMerchant(email, password);
+		if (m.isPresent()) {
+			structure.setBody(m.get());
 			structure.setMessage("Merchant verified successfully");
 			structure.setStatusCode(HttpStatus.OK.value());
 			return new ResponseEntity<ResponseStructure<Merchant>>(structure, HttpStatus.OK);
 		}
-		structure.setBody(null);
-		structure.setMessage("Inavlid Email or password");
-		structure.setStatusCode(HttpStatus.UNAUTHORIZED.value());
-		return new ResponseEntity<ResponseStructure<Merchant>>(structure, HttpStatus.UNAUTHORIZED);
+		throw new InvalidCredentials("Invalid email or password");
 	}
 
 	public ResponseEntity<ResponseStructure<Merchant>> verify(long phone, String password) {
 
 		ResponseStructure<Merchant> structure = new ResponseStructure<>();
-		Merchant m = merchantDao.verifyMerchant(phone, password);
-		if (m != null) {
-			structure.setBody(m);
+		Optional<Merchant> m = merchantDao.verifyMerchant(phone, password);
+		if (m.isPresent()) {
+			structure.setBody(m.get());
 			structure.setMessage("Merchant verified successfully");
 			structure.setStatusCode(HttpStatus.OK.value());
 			return new ResponseEntity<ResponseStructure<Merchant>>(structure, HttpStatus.OK);
 		}
-		structure.setBody(null);
-		structure.setMessage("Inavlid phone number or password");
-		structure.setStatusCode(HttpStatus.UNAUTHORIZED.value());
-		return new ResponseEntity<ResponseStructure<Merchant>>(structure, HttpStatus.UNAUTHORIZED);
+		throw new InvalidCredentials("Invalid Phone or password");
+
 	}
 
 	public ResponseEntity<ResponseStructure<List<Merchant>>> findAll() {
 		ResponseStructure<List<Merchant>> structure = new ResponseStructure<>();
-//		List<Merchant> l = merchantDao.findAll();
 		structure.setBody(merchantDao.findAll());
 		structure.setMessage("Fetched All merchants");
 		structure.setStatusCode(HttpStatus.OK.value());
 		return new ResponseEntity<ResponseStructure<List<Merchant>>>(structure, HttpStatus.OK);
+	}
+
+	public ResponseEntity<ResponseStructure<String>> activateMerchant(String token) {
+		Optional<Merchant> m = merchantDao.findByToken(token);
+		if (m.isPresent()) {
+			Merchant merchant = m.get();
+			merchant.setStatus(AccountStatus.ACTIVE.toString());
+			merchant.setToken(null);
+			merchantDao.savMerchant(merchant);
+			ResponseStructure<String> structure = new ResponseStructure<>();
+			structure.setBody("Merchant Found");
+			structure.setMessage("Account verifed and activated");
+			structure.setStatusCode(HttpStatus.ACCEPTED.value());
+			return new ResponseEntity<ResponseStructure<String>>(structure, HttpStatus.ACCEPTED);
+		}
+		throw new IdNotFound("Account not verifed");
 	}
 
 }

@@ -39,16 +39,21 @@ public class MerchantDao {
 		repository.deleteAll();
 	}
 
-	public Merchant verifyMerchant(String email, String password) {
+	public Optional<Merchant> verifyMerchant(String email, String password) {
 		return repository.verify(email, password);
 	}
 
-	public Merchant verifyMerchant(long phone, String password) {
+	public Optional<Merchant> verifyMerchant(long phone, String password) {
 		return repository.verify(phone, password);
 	}
 	
 	public List<Merchant> findAll()
 	{
 		return repository.findAll();
+	}
+	
+	public Optional<Merchant> findByToken(String token)
+	{
+		return repository.findByToken(token);
 	}
 }
