@@ -1,5 +1,6 @@
 package org.jsp.ecommerceapp.dao;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.jsp.ecommerceapp.model.Address;
@@ -18,6 +19,14 @@ public class AddressDao {
 
 	public Optional<Address> findById(int id) {
 		return repository.findById(id);
+	}
+
+	public List<Address> findAll() {
+		return repository.findAll();
+	}
+
+	public List<Address> findByUserId(int user_id) {
+		return repository.findByUserid(user_id);
 	}
 
 }

@@ -7,9 +7,13 @@ const MerchantsNavBar = () => {
             <div className="logo">
                 <h1>ShoppeeQ</h1>
             </div>
-            <div className="opt">
-                <button className="btn btn-danger"><Link to="/merchant-home-page/product-view">View  Products</Link></button>
+            <div className="pv">
+                <button id="b1" className="btn btn-danger"><Link to="/merchant-home-page/product-view">View Products</Link></button>
             </div>
+            <div className="ap">
+            <button id="b2" className="btn btn-danger"><Link to="/merchant-home-page/add-products">Add Products</Link></button>
+            </div>
+            
             <Dropdown>
       <Dropdown.Toggle variant="success" id="dropdown-basic">
         <AccountCircleIcon/>Account

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import { Link, useNavigate } from 'react-router-dom';
 import validator from 'validator';
+import LockOpenTwoToneIcon from '@mui/icons-material/LockOpenTwoTone';
 const MerchantLogin = () => {
     let [email,setemail]=useState('')
     let [password,setpassword]=useState('')
@@ -33,7 +34,7 @@ const MerchantLogin = () => {
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="formGroupPassword">
                     <Form.Label>Password</Form.Label>
-                    <Form.Control value={password} onChange={(e)=>{setpassword(e.target.value)}} type="password" placeholder="Enter Password" />
+                    <Form.Control value={password} onChange={(e)=>{setpassword(e.target.value)}} type="password" placeholder="Enter ur Password" />
                 </Form.Group>
                 <Form.Group>
                     <button onClick={verifyByEmail} className='btn btn-success mx-5' >Sign In</button>

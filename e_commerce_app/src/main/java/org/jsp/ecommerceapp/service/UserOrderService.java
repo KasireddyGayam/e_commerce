@@ -2,10 +2,13 @@ package org.jsp.ecommerceapp.service;
 
 import java.util.Optional;
 
+import org.jsp.ecommerceapp.dao.ProductDao;
+import org.jsp.ecommerceapp.dao.UserDao;
 import org.jsp.ecommerceapp.dao.UserOrderDao;
 import org.jsp.ecommerceapp.dto.ResponseStructure;
 import org.jsp.ecommerceapp.exceptions.IdNotFound;
 import org.jsp.ecommerceapp.model.Product;
+import org.jsp.ecommerceapp.model.User;
 import org.jsp.ecommerceapp.model.UserOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,8 +19,22 @@ import org.springframework.stereotype.Service;
 public class UserOrderService {
 	@Autowired
 	private UserOrderDao usDao;
+	@Autowired
+	private ProductDao productDao;
+	@Autowired
+	private UserDao userDao;
 
-	public ResponseEntity<ResponseStructure<UserOrder>> save(UserOrder order) {
+	public ResponseEntity<ResponseStructure<UserOrder>> save(int user_id,int product_id)
+	{
+		Optional<User> u=userDao.findById(user_id);
+		Optional<Product> p=productDao.findById(product_id);
+		if(u.isEmpty()||p.isEmpty())
+			throw new IdNotFound("User or Product is not found");
+		UserOrder order=new UserOrder();
+		order.getProducts().add(p.get());
+		p.get().setOrder(order);
+		order.setUser(u.get());
+		u.get().getOrders().add(order);
 		ResponseStructure<UserOrder> structure = new ResponseStructure<>();
 		structure.setBody(usDao.saveOrder(order));
 		structure.setMessage("Order Has been placed");
@@ -31,10 +48,6 @@ public class UserOrderService {
 			ResponseStructure<UserOrder> structure = new ResponseStructure<>();
 
 			UserOrder us = o.get();
-			us.setCost(order.getCost());
-			us.setOrder_name(order.getOrder_name());
-			us.setOrdered_time(order.getOrdered_time());
-			us.setType(order.getType());
 			structure.setBody(usDao.saveOrder(order));
 			structure.setMessage("Order has been updated");
 			structure.setStatusCode(HttpStatus.CREATED.value());
@@ -55,5 +68,5 @@ public class UserOrderService {
 		}
 		throw new IdNotFound("Invalid Order id");
 	}
-	
+
 }
