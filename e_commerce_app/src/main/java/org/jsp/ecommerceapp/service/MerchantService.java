@@ -95,6 +95,10 @@ public class MerchantService {
 		ResponseStructure<Merchant> structure = new ResponseStructure<>();
 		Optional<Merchant> m = merchantDao.verifyMerchant(email, password);
 		if (m.isPresent()) {
+			Merchant merchant=m.get();
+			if(merchant.getStatus().equals(AccountStatus.IN_ACTIVE.toString())) {
+				throw new IllegalStateException("Account is not activated");
+			}
 			structure.setBody(m.get());
 			structure.setMessage("Merchant verified successfully");
 			structure.setStatusCode(HttpStatus.OK.value());
@@ -108,6 +112,10 @@ public class MerchantService {
 		ResponseStructure<Merchant> structure = new ResponseStructure<>();
 		Optional<Merchant> m = merchantDao.verifyMerchant(phone, password);
 		if (m.isPresent()) {
+			Merchant merchant=m.get();
+			if(merchant.getStatus().equals(AccountStatus.IN_ACTIVE.toString())) {
+				throw new IllegalStateException("Account is not activated");
+			}
 			structure.setBody(m.get());
 			structure.setMessage("Merchant verified successfully");
 			structure.setStatusCode(HttpStatus.OK.value());

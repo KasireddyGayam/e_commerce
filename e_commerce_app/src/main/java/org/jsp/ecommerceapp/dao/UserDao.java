@@ -24,11 +24,11 @@ public class UserDao {
 		return repository.findById(id);
 	}
 
-	public User verify(String email, String password) {
+	public Optional<User> verify(String email, String password) {
 		return repository.verify(email, password);
 	}
 
-	public User verify(long phone, String password) {
+	public Optional<User> verify(long phone, String password) {
 		return repository.verify(phone, password);
 	}
 

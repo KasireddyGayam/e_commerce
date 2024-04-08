@@ -7,6 +7,8 @@ import org.jsp.ecommerceapp.model.Product;
 import org.jsp.ecommerceapp.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/products")
+@CrossOrigin
 public class ProductController {
 	@Autowired
 	private ProductService productService;
@@ -27,7 +30,7 @@ public class ProductController {
 		return productService.save(product, merchant_id);
 	}
 
-	@PutMapping()
+	@PutMapping
 	public ResponseEntity<ResponseStructure<Product>> update(@RequestBody Product product) {
 		return productService.update(product);
 	}
@@ -37,7 +40,7 @@ public class ProductController {
 		return productService.findAll();
 	}
 
-	@GetMapping("/find-by-brand/{brnad}")
+	@GetMapping("/find-by-brand/{brand}")
 	public ResponseEntity<ResponseStructure<List<Product>>> findByBrand(@PathVariable String brand) {
 		return productService.findByBrand(brand);
 	}
@@ -51,5 +54,35 @@ public class ProductController {
 	public ResponseEntity<ResponseStructure<List<Product>>> findByCategory(@PathVariable String category) {
 		return productService.findByCategory(category);
 	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<ResponseStructure<String>> delete(@PathVariable int id) {
+		return productService.delete(id);
+	}
+	
+	@GetMapping("/find-by-id/{id}")
+	public ResponseEntity<ResponseStructure<Product>> findById(@PathVariable int id)
+	{
+		return productService.findById(id);
+	}
+	
+	@PutMapping("/add-to-cart/{user_id}/{product_id}")
+	public ResponseEntity<ResponseStructure<String>> addToCart(@PathVariable int user_id,@PathVariable int product_id)
+	{
+		return productService.addToCart(user_id, product_id);
+	}
+	
+	@PutMapping("/add-to-wishlist/{user_id}/{product_id}")
+	public ResponseEntity<ResponseStructure<String>> addToWishList(@PathVariable int user_id,@PathVariable int product_id)
+	{
+		return productService.addToWishList(user_id, product_id);
+	}
+	
+	@PutMapping("/place-order/{user_id}/{product_id}")
+	public ResponseEntity<ResponseStructure<String>> placeOrder(@PathVariable int user_id,@PathVariable int product_id)
+	{
+		return productService.placeOrder(user_id, product_id);
+	}
+	
 
 }

@@ -19,5 +19,9 @@ public class Product {
 	@JoinColumn(name = "merchant_id")
 	@JsonIgnore
 	private Merchant merchant;
+	@ManyToOne
+	@JoinColumn
+	@JsonIgnore
+	private UserOrder order;
 
 }

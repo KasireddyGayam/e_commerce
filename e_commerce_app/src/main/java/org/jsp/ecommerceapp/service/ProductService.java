@@ -5,11 +5,15 @@ import java.util.Optional;
 
 import org.jsp.ecommerceapp.dao.MerchantDao;
 import org.jsp.ecommerceapp.dao.ProductDao;
+import org.jsp.ecommerceapp.dao.UserDao;
+import org.jsp.ecommerceapp.dao.UserOrderDao;
 import org.jsp.ecommerceapp.dto.ResponseStructure;
 import org.jsp.ecommerceapp.exceptions.IdNotFound;
 import org.jsp.ecommerceapp.exceptions.ProductNotFoundExceotion;
 import org.jsp.ecommerceapp.model.Merchant;
 import org.jsp.ecommerceapp.model.Product;
+import org.jsp.ecommerceapp.model.User;
+import org.jsp.ecommerceapp.model.UserOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,11 +25,15 @@ public class ProductService {
 	private ProductDao productDao;
 	@Autowired
 	private MerchantDao merchantDao;
+	@Autowired
+	private UserDao userDao;
+	@Autowired
+	private UserOrderDao orderDo;
 
 	public ResponseEntity<ResponseStructure<Product>> save(Product product, int merchant_id) {
 		Optional<Merchant> m = merchantDao.findById(merchant_id);
 		if (m.isPresent()) {
-			Merchant merchant=m.get();
+			Merchant merchant = m.get();
 			merchant.getProducts().add(product);
 			product.setMerchant(merchant);
 			ResponseStructure<Product> structure = new ResponseStructure<>();
@@ -81,18 +89,16 @@ public class ProductService {
 		return new ResponseEntity<ResponseStructure<List<Product>>>(structure, HttpStatus.OK);
 	}
 
-	public ResponseEntity<ResponseStructure<List<Product>>> findByBrand(String brand)
-	{
-		List<Product> products=productDao.findByBrand(brand);
-		if(products.isEmpty())
-		{
+	public ResponseEntity<ResponseStructure<List<Product>>> findByBrand(String brand) {
+		List<Product> products = productDao.findByBrand(brand);
+		if (products.isEmpty()) {
 			throw new ProductNotFoundExceotion("Products not found with entered Brand");
 		}
-		ResponseStructure<List<Product>> structure=new ResponseStructure<>();
+		ResponseStructure<List<Product>> structure = new ResponseStructure<>();
 		structure.setBody(products);
 		structure.setMessage("List of Products found ");
 		structure.setStatusCode(HttpStatus.OK.value());
-		return new ResponseEntity<ResponseStructure<List<Product>>>(structure,HttpStatus.OK);
+		return new ResponseEntity<ResponseStructure<List<Product>>>(structure, HttpStatus.OK);
 	}
 
 	public ResponseEntity<ResponseStructure<List<Product>>> findByCategory(String category) {
@@ -118,4 +124,70 @@ public class ProductService {
 		structure.setStatusCode(HttpStatus.OK.value());
 		return new ResponseEntity<ResponseStructure<List<Product>>>(structure, HttpStatus.OK);
 	}
+
+	public ResponseEntity<ResponseStructure<String>> delete(int id) {
+		Optional<Product> p = productDao.findById(id);
+		if (p.isPresent()) {
+			productDao.delete(p.get().getId());
+			ResponseStructure<String> structure = new ResponseStructure<>();
+			structure.setBody("Product deleted");
+			structure.setMessage("Product foundand deleted");
+			structure.setStatusCode(HttpStatus.OK.value());
+			return new ResponseEntity<ResponseStructure<String>>(structure, HttpStatus.OK);
+		}
+		throw new IdNotFound("Invalid product id");
+	}
+	
+	public ResponseEntity<ResponseStructure<String>> addToCart(int user_id,int product_id)
+	{
+		Optional<Product> p=productDao.findById(product_id);
+		Optional<User> u=userDao.findById(user_id);
+		if(u.isEmpty()||p.isEmpty())
+			throw new IllegalArgumentException("Invalid user id or product id");
+		ResponseStructure<String> structure=new ResponseStructure<>();
+		u.get().getCart().add(p.get());
+		userDao.saveUser(u.get());
+		structure.setBody("User and Product found");
+		structure.setMessage("Product added to cart");
+		structure.setStatusCode(HttpStatus.ACCEPTED.value());
+		return new ResponseEntity<ResponseStructure<String>>(structure,HttpStatus.ACCEPTED);
+	}
+	
+	public ResponseEntity<ResponseStructure<String>> addToWishList(int user_id,int product_id)
+	{
+		Optional<Product> p=productDao.findById(product_id);
+		Optional<User> u=userDao.findById(user_id);
+		if(u.isEmpty()||p.isEmpty())
+			throw new IllegalArgumentException("Invalid user id or product id");
+		ResponseStructure<String> structure=new ResponseStructure<>();
+		u.get().getWishList().add(p.get());
+		userDao.saveUser(u.get());
+		structure.setBody("User and Product found");
+		structure.setMessage("Product added to WishList");
+		structure.setStatusCode(HttpStatus.ACCEPTED.value());
+		return new ResponseEntity<ResponseStructure<String>>(structure,HttpStatus.ACCEPTED);
+	}
+	
+	public ResponseEntity<ResponseStructure<String>> placeOrder(int user_id,int product_id)
+	{
+		Optional<Product> p=productDao.findById(product_id);
+		Optional<User> u=userDao.findById(user_id);
+		if(u.isEmpty()||p.isEmpty())
+			throw new IllegalArgumentException("Invalid user id or product id");
+		UserOrder order=new UserOrder();
+		ResponseStructure<String> structure=new ResponseStructure<>();
+		u.get().getOrders().add(order);
+		userDao.saveUser(u.get());
+		p.get().setOrder(order);
+		order.getProducts().add(p.get());
+		order.setUser(u.get());
+		orderDo.saveOrder(order);
+		
+//		productDao.saveProduct(p.get());
+		structure.setBody("User and Product found");
+		structure.setMessage("Order  has been placed");
+		structure.setStatusCode(HttpStatus.ACCEPTED.value());
+		return new ResponseEntity<ResponseStructure<String>>(structure,HttpStatus.ACCEPTED);
+	}
+	
 }

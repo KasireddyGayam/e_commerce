@@ -40,5 +40,10 @@ public class ProductDao {
 	public List<Product> findByMerchantById(int merchant_id) {
 		return repository.findByMerchantId(merchant_id);
 	}
+	
+	public void delete(int id)
+	{
+		 repository.deleteById(id);
+	}
 
 }

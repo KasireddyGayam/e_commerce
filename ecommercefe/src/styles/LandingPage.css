@@ -1,3 +1,5 @@
+
+/* Landing page */
 .landingPage{
     height: 550px;
     display: flex;
@@ -13,7 +15,7 @@
     
 }
 .landingPage img:hover{
-    transform: scale(2);
+    transform: scale(1.2);
 }
 .landingPage a{
     flex-basis: 15%;
@@ -23,6 +25,8 @@
      font-family: cursive;
     font-size: larger;
 }
+
+/* merchant nav bar */
 
 nav{
     height: 30%;
@@ -40,7 +44,11 @@ nav a{
     text-decoration: none;
     color: aliceblue;
 }
+/* nav button{
+    margin-left: 10px;
+} */
 
+/* merchant update form */
 .update-merchant form{
   
     display: grid;
@@ -65,3 +73,197 @@ nav a{
      outline: none;
      border-bottom: 2px solid gray; 
   }
+/* add products */
+  .addProducts{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+  }
+  .addProducts form{
+    display: grid;
+    grid-template-columns: 200px 250px;
+    /* outline: 5px solid black; */
+    box-shadow: 0px 0px 10px silver;
+    padding: 40px 40px;
+    border-radius: 10px;
+    background-color: bisque;
+  }
+  .addProducts form:hover{
+    transform: scale(1.1);
+  }
+  .addProducts input,label{
+    margin: 10px;
+    font-family: cursive;
+    font-style: italic;
+  }
+  .addProducts input{
+    border-radius: 6px ;
+  }
+
+  /* products view */
+.productView{
+  height: 400px;
+  width: 280px;
+}
+.productView img{
+  height: 220px;
+  width: 100px;
+  transition: 2s;
+}
+#name{
+  height: 80px;
+}
+
+.disp{
+  height: 200vh;
+  display: grid;
+  grid-template-columns: 320px 320px 320px;
+  grid-template-rows: 500px 500px;
+  justify-content: space-around;
+}
+
+#cost{
+  font-weight: bolder;
+  font-size: larger;
+  font-family: cursive;
+}
+#desc{
+  height: 50px;
+  display: block;
+  overflow: hidden;
+}
+
+.productView img:hover{
+  transform: rotateY(180deg);
+}
+
+  #category{
+  height: 29px;
+  width: 84px;
+  position: relative;
+  color: white;
+  padding: 0px 5px;
+  border-radius: 10px;
+  top: 30px;
+  left: 15px;
+background-color: deepskyblue;
+}
+.icons{
+  display: flex;
+  justify-content: space-between;
+}
+
+
+/* user read content */
+
+.read_disp{
+  margin-top: 50px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+/* .image:hover{
+transform: scale(1.1);
+transition: .5s;
+} */
+#amount{
+  font-size: 30px;
+}
+.read_disp strike{
+  color: grey;
+}
+
+.read_disp sup{
+  font-size: large;
+  font-weight: bold;
+}
+
+#cart{
+  transform: translate(80p);
+  padding: 4px 80px;
+  border-radius: 30p;
+}
+#cart:hover{
+  font-size: large;
+  color: rgb(32, 4, 4);
+  border: .5px solid black;
+}
+.read_disp .desc {
+  height: 80px;
+  width: 700px;
+}
+#icon{
+  position: relative;
+  top: -140px;
+  left: 340px;
+  font-size: 30px;
+  color: red;
+}
+#icon:hover{
+  transform: scale(1.1);
+  transition: .5s;
+}
+#icon:active{
+  fill: red;
+  background-color: red;
+}
+
+
+  
+
+  /* update user */
+  .update-user{
+    height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .update-user form{
+    display: grid;
+    grid-template-columns: 200px 200px ;
+    outline: 2px solid black;
+    padding: 20px 40px ;
+    border-radius: 10px ;
+    box-shadow: 0px 0px 20px black;
+  }
+  .update-user input,label{
+    margin: 10px;
+    font-family: cursive;
+    font-style: italic;
+    border: none;
+    border-bottom: .4px solid black;
+  }
+  .update-user input:hover{
+    color: white;
+    background-color: black;
+  }
+
+  .update-user form:hover{
+    background-color: aquamarine;
+    transform: scale(1.1);
+  }
+
+  /* Add Address */
+
+  .add-address{
+    height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+ .add-address form{
+  display: grid;
+  grid-template-columns: 200px 200px;
+  padding: 10px 30px;
+  border: 1px solid black;
+  box-shadow: 0px 0px 10px black;
+  border-radius: 10px;
+ }  
+ .add-address input,label{
+  border: none;
+  border-bottom: 1px solid pink;
+  font-family: cursive;
+  font-style: italic;
+ }
+

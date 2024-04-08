@@ -6,17 +6,15 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Dropdown from 'react-bootstrap/Dropdown';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-
-const ProductView = () => {
-    let [item, setItem] = useState([]);
+const UserProducts = () => {
     let navigate=useNavigate()
+    let [item, setItem] = useState([]);
     // let { id } = useParams()
     useEffect(() => {
         axios.get(`http://localhost:8080/products`)
             .then((res) => {
                 console.log((res.data.body));
                 setItem((res.data.body))
-                // localStorage.setItem("Products", JSON.stringify(admin))
                 console.log(item);
             })
             .catch((err) => {
@@ -33,7 +31,6 @@ const ProductView = () => {
 
         })
         .catch((err)=>{
-        console.log(err);
             console.log(err.data);
         })
     }
@@ -50,22 +47,8 @@ const ProductView = () => {
         })
     }
     
-    let remove=(name,id)=>{
-        axios.delete(`http://localhost:8080/products/${id}`)
-        .then((res)=>{
-            console.log(res);
-            alert(`${name} removed successfully`)
-        })
-        .catch((err)=>{
-            console.log(err.data);
-        })
-    }
-
-    let edit=(id)=>{
-        navigate(`/merchant-home-page/edit-product/${id}`)
-    }
     let read=(id)=>{
-        navigate(`/merchant-home-page/read-content/${id}`)
+        navigate(`/user-home-page/read-content/${id}`)
     }
 
     return (
@@ -90,16 +73,13 @@ const ProductView = () => {
                                 <div id="category">{x.category}</div>
                                 <img src={x.image_url} alt="" />
                             </div>
-                            <div className="desc">
+                            <div className="desc" >
                                 <h4 id="name" onClick={()=>{read(x.id)}}>{x.name} || {x.brand}</h4>
                                 <span id="cost"><sup><b>₹</b></sup>{x.cost}</span>
                                 <br />
                                 <span id="desc">{x.description} </span>
                             </div>
-                            <div className="icons">
-                                <EditIcon onClick={()=>{edit(x.id)}}/>
-                                <DeleteOutlineIcon onClick={()=>{remove(x.name,x.id)}}/>
-                            </div>
+                            
                         </div>
                         </div>
                         )
@@ -108,5 +88,5 @@ const ProductView = () => {
             </div>
                 );
         }
-
-export default ProductView;
+ 
+export default UserProducts;

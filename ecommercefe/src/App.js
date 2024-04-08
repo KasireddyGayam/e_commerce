@@ -11,6 +11,8 @@ import UserSignUp from './components/UserSignup';
 import UserHomePage from './components/UserHomePage';
 import Error from './components/Error';
 import Protect from './components/Protect';
+import UserSecure from './components/UserSecure';
+
 function App() {
   return (
     <div className="App">
@@ -23,9 +25,11 @@ function App() {
           <Route path='/merchant-signup' element={<MerchantSignUp />} />
           <Route path='/merchant-home-page/*' element={<Protect Child={MerchantHomePage}/>} />
           <Route path='/user-signup' element={<UserSignUp/>}/>
-          <Route path='/user-home-page' element={<UserHomePage/>}/>
+          <Route path='/user-home-page/*' element={<UserSecure Parent={UserHomePage}/>}/>
+          
         </Routes>
       </BrowserRouter>
+     
     </div>
   );
 }

@@ -3,15 +3,23 @@
     display: flex;
     align-items: center;
     justify-content: center;
+ 
 }
 .merchantLogin Form{
-    box-shadow: 0px 0px 20px silver;
-    background-image: url("https://th.bing.com/th/id/OIP.xNoYcQtvqLjz-yT3klxnxgAAAA?pid=ImgDet&w=200&h=169&c=7&dpr=1.5");
-    background-position: 100vh;
+    box-shadow: 0px 0px 10px silver;
+    background-image: url("https://www.shutterstock.com/shutterstock/photos/1696911250/display_1500/stock-photo-multi-exposure-of-woman-hands-working-on-computer-and-brain-hologram-drawing-ai-concept-1696911250.jpg");
+    /* background-position: 100vh; */
     background-size: cover;
     background-repeat: none;
-    padding: 40px 40px;
+    padding: 30px 30px;
     border-radius: 10px;
+    /* background-color: aqua; */
+}
+.merchantLogin label{
+    text-align: center;
+    color: black;
+    font-weight: bolder;
+    font-style: italic;
 }
 .merchantLogin input{
     color: black;
@@ -26,6 +34,7 @@
     color:black;
     font-family: cursive;
 }
+
 
 .merchantLogin a{
     text-decoration: none;

@@ -94,10 +94,14 @@ public class UserService {
 	}
 
 	public ResponseEntity<ResponseStructure<User>> verifyUser(String email, String password) {
-		User u = userDao.verify(email, password);
-		if (u != null) {
+		Optional<User> u = userDao.verify(email, password);
+		if (u.isPresent()) {
+			User user = u.get();
+			if (user.getStatus().equals(AccountStatus.IN_ACTIVE.toString())) {
+				throw new IllegalStateException("Account is not activated");
+			}
 			ResponseStructure<User> structure = new ResponseStructure<>();
-			structure.setBody(u);
+			structure.setBody(u.get());
 			structure.setMessage("User has been verified");
 			structure.setStatusCode(HttpStatus.OK.value());
 			return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.OK);
@@ -106,10 +110,14 @@ public class UserService {
 	}
 
 	public ResponseEntity<ResponseStructure<User>> verifyUser(long phone, String password) {
-		User u = userDao.verify(phone, password);
-		if (u != null) {
+		Optional<User> u = userDao.verify(phone, password);
+		if (u.isPresent()) {
+			User user = u.get();
+			if (user.getStatus().equals(AccountStatus.IN_ACTIVE.toString())) {
+				throw new IllegalStateException("Account is not acivated");
+			}
 			ResponseStructure<User> structure = new ResponseStructure<>();
-			structure.setBody(u);
+			structure.setBody(u.get());
 			structure.setMessage("User has been verified");
 			structure.setStatusCode(HttpStatus.OK.value());
 			return new ResponseEntity<ResponseStructure<User>>(structure, HttpStatus.OK);
